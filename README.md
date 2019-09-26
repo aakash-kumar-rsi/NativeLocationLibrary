@@ -3,36 +3,68 @@
 
 ## Getting started
 
-`$ npm install react-native-native-location-library --save`
-
-### Mostly automatic installation
-
-`$ react-native link react-native-native-location-library`
-
-### Manual installation
-
-
-#### Android
-
-1. Open up `android/app/src/main/java/[...]/MainActivity.java`
-  - Add `import com.reactlibrary.RNNativeLocationLibraryPackage;` to the imports at the top of the file
-  - Add `new RNNativeLocationLibraryPackage()` to the list returned by the `getPackages()` method
-2. Append the following lines to `android/settings.gradle`:
-  	```
-  	include ':react-native-native-location-library'
-  	project(':react-native-native-location-library').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-native-location-library/android')
-  	```
-3. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
-  	```
-      compile project(':react-native-native-location-library')
-  	```
+`npm install git+https://github.com/aakash-kumar-rsi/NativeLocationLibrary.git`
 
 
 ## Usage
 ```javascript
-import RNNativeLocationLibrary from 'react-native-native-location-library';
-
-// TODO: What to do with the module?
-RNNativeLocationLibrary;
+import {
+  RNNativeLocationLibrary,
+  RNNativeLocationPermissions,
+  PermissionStatus,
+} from 'react-native-native-location-library';
+import {NativeEventEmitter, AppState} from 'react-native';
 ```
   
+To check if location permission is enabled or not.
+```
+RNNativeLocationPermissions.checkLocationPermission()
+  .then(permission => {
+  
+	// permission could be authorized, denied, restricted, undetermined
+	// These permissions can be checked by using `PermissionStatus` object
+	if (permission === PermissionStatus.authorized) {
+		// do something when permission authorized
+	}
+	else if (permission === PermissionStatus.denied) {
+		// do something when permission rejected
+	}
+	// & so on
+  })
+  .catch(err => {
+	console.log(err);
+  });
+```
+
+If location permission are rejected user can open settings page of application using 
+```
+RNNativeLocationLibrary.openSettings();
+```
+
+  
+If user authorized the location permission start start location updates
+```
+RNNativeLocationLibrary.startLocationUpdates()
+.then(enabled => {
+  // This will return if gps is enabled or not
+  // If gps is not enabled it will prompt user to enable it
+})
+.catch(err => {
+  console.log(err);
+});
+```
+
+When location updates are started & gps is enabled. Create a event listener for location updates
+```
+this.eventEmitter = new NativeEventEmitter(RNNativeLocationLibrary);
+this.locationListener = this.eventEmitter.addListener(
+'LocationUpdate', location => {
+  // This `location` parameter will return the current location
+},
+);
+```
+
+**Minimum Requirement**
+```
+minSdkVersion 22
+```
